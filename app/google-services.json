@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "388175984136",
+    "firebase_url": "https://appandroid-bcba2.firebaseio.com",
+    "project_id": "appandroid-bcba2",
+    "storage_bucket": "appandroid-bcba2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388175984136:android:10a9bee9b1f66a0f",
+        "android_client_info": {
+          "package_name": "com.example.federico.appandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "388175984136-prqe5vcgg4988tn6mf2n9u9vjljis7k1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdPMkiLy716xqQd2yF4lJFp-_Gq040ITE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
