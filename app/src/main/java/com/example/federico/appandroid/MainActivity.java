@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private Button btn_aceptar;
+    private Button btn_login;
     private EditText usuario_nombre;
     private EditText usuario_password;
     private FirebaseAuth mAuth;
@@ -34,10 +35,22 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mAuth = FirebaseAuth.getInstance();
+        btn_login=(Button)findViewById(R.id.btn_login);
         btn_aceptar = findViewById(R.id.btn_aceptar);
+
+        // Metodo para registrarte
         btn_aceptar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 openActivity();
+            }
+        });
+
+
+        // Metodo para logiarte
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loguearse();
             }
         });
     }
@@ -57,8 +70,13 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(MainActivity.this, "Authentication isSuccessful",
+                            Toast.makeText(MainActivity.this, "Registro con exito",
                                     Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(MainActivity.this,IndexActivity.class);
+
+                            intent.putExtra("nombre",usuario_nombre.getText().toString());
+                            startActivity(intent);
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(MainActivity.this, task.getException().getMessage(),
@@ -80,7 +98,34 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public void loguearse(){
+        usuario_nombre = (EditText) findViewById(R.id.usuario_txt);
+        usuario_password = (EditText) findViewById(R.id.password_txt);
 
+        mAuth.signInWithEmailAndPassword(usuario_nombre.getText().toString(), usuario_password.getText().toString())
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(MainActivity.this, "Bienvenido: "+usuario_nombre.getText().toString(),
+                                    Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(MainActivity.this,IndexActivity.class);
+                            intent.putExtra("nombre",usuario_nombre.getText().toString());
+                            startActivity(intent);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Toast.makeText(MainActivity.this, task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        // ...
+                    }
+                });
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
