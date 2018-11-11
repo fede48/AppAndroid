@@ -1,8 +1,11 @@
 package com.example.federico.appandroid;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,12 +24,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import android.Manifest;
 
 public class IndexActivity extends AppCompatActivity {
     private TextView bienvenida;
     private TextView documetn;
     private TextView residencia;
     private Button cerrar;
+    private Button gomap;
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
@@ -36,7 +42,9 @@ public class IndexActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
 
+    private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
+    private FusedLocationProviderClient mfuedLocation;
 
 
     @Override
@@ -59,11 +67,20 @@ public class IndexActivity extends AppCompatActivity {
         bienvenida=(TextView)findViewById(R.id.msjbienvenida);
         documetn=(TextView)findViewById(R.id.dni);
         residencia=(TextView)findViewById(R.id.localidad);
+        gomap=(Button)findViewById(R.id.irmapa);
         cerrar=(Button)findViewById(R.id.btn_cerrarsesion);
 
 
 
+        gomap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                darpermisosdeLOCATION();
 
+                Intent intent=new Intent(IndexActivity.this,MapsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         //cerrar sesion
         cerrar.setOnClickListener(new View.OnClickListener() {
@@ -119,6 +136,16 @@ public class IndexActivity extends AppCompatActivity {
 
     }
 
+
+
+    public void darpermisosdeLOCATION(){
+        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) !=PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(IndexActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+        }
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -129,12 +156,6 @@ public class IndexActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-
-
-
-
-
 }
+
+

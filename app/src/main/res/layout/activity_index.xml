@@ -71,6 +71,12 @@
             app:layout_constraintTop_toBottomOf="@+id/dni"
             app:layout_constraintVertical_bias="0.227" />
 
+        <Button
+            android:id="@+id/irmapa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ir al mapa" />
+
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
