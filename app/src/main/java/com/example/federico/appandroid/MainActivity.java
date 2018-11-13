@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(MainActivity.this, "Bienvenido: " + usuario,
                                         Toast.LENGTH_SHORT).show();
+
                                 Intent intent = new Intent(MainActivity.this, IndexActivity.class);
                                 //intent.putExtra("email",usuario_nombre.getText().toString());
                                 startActivity(intent);
