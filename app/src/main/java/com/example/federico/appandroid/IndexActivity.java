@@ -5,7 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import android.Manifest;
 
+
 public class IndexActivity extends AppCompatActivity {
     private TextView bienvenida;
     private TextView documetn;
@@ -41,6 +46,7 @@ public class IndexActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
+    private NavigationView navigationView;
 
     private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
@@ -58,6 +64,7 @@ public class IndexActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         mToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
         mDrawerLayout.addDrawerListener(mToggle);
@@ -71,6 +78,27 @@ public class IndexActivity extends AppCompatActivity {
         cerrar=(Button)findViewById(R.id.btn_cerrarsesion);
 
 
+        navigationView = (NavigationView) findViewById(R.id.navigation_menu);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                Fragment selectedFragment = null;
+
+                if (id == R.id.zonas) {
+                    selectedFragment = new ZonaFragment();
+
+                } else if (id == R.id.publicaciones) {
+                    selectedFragment = new PublicacionFragment();
+
+                }
+
+                getSupportFragmentManager().beginTransaction().replace(R.id.drawer,selectedFragment).commit();
+                return true;
+
+
+            }
+        });
 
         gomap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +183,9 @@ public class IndexActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
 }
 
