@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import android.support.annotation.NonNull;
+import android.provider.*;
+import android.graphics.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private ImageView imgImagen;
 
 
 
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         btn_aceptar = findViewById(R.id.btn_aceptar);
         usuario_nombre = (EditText) findViewById(R.id.usuario_txt);
         usuario_password = (EditText) findViewById(R.id.password_txt);
+        imgImagen = (ImageView) findViewById(R.id.imagen);
+
         mProgress=new ProgressDialog(this);
 
         // Metodo para registrarte
@@ -72,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
                 loguearse();
             }
         });
-
-
 
         //Listener de estado de coneccion
         mAuthListener=new FirebaseAuth.AuthStateListener() {
@@ -187,6 +191,24 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
+    private void TakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            imgImagen.setImageBitmap(imageBitmap);
+        }
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -196,6 +218,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.camara) {
+            TakePictureIntent();
             return true;
         }
 
