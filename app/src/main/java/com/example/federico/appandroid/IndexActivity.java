@@ -34,32 +34,14 @@ import android.Manifest;
 
 
 public class IndexActivity extends AppCompatActivity {
-    private TextView bienvenida;
-    private TextView documetn;
-    private TextView residencia;
-    private Button cerrar;
-    private Button gomap;
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseAuth mAuth;
-    private ProgressDialog progressDialog;
-
-    private DatabaseReference mDatabase;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private NavigationView navigationView;
 
-    private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
     private FusedLocationProviderClient mfuedLocation;
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
 
 
     @Override
@@ -69,17 +51,14 @@ public class IndexActivity extends AppCompatActivity {
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContent,new HomeFragment()).commit();
+
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.index);
         mToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
         mDrawerLayout.addDrawerListener(mToggle);
         mToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        bienvenida=(TextView)findViewById(R.id.msjbienvenida);
-        documetn=(TextView)findViewById(R.id.dni);
-        residencia=(TextView)findViewById(R.id.localidad);
-        gomap=(Button)findViewById(R.id.irmapa);
-        cerrar=(Button)findViewById(R.id.btn_cerrarsesion);
 
 
         navigationView = (NavigationView) findViewById(R.id.navigation_menu);
@@ -95,88 +74,33 @@ public class IndexActivity extends AppCompatActivity {
                 } else if (id == R.id.publicaciones) {
                     selectedFragment = new PublicacionFragment();
 
+                } else if (id == R.id.home) {
+                    selectedFragment = new HomeFragment();
+
                 }
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.drawer,selectedFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment).commit();
+
+                // Highlight the selected item has been done by NavigationView
+                menuItem.setChecked(true);
+                // Set action bar title
+                setTitle(menuItem.getTitle());
+                // Close the navigation drawer
+                mDrawerLayout.closeDrawers();
+
+
                 return true;
 
 
             }
         });
 
-        gomap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                darpermisosdeLOCATION();
-
-                Intent intent=new Intent(IndexActivity.this,MapsActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //cerrar sesion
-        cerrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(IndexActivity.this,MainActivity.class));
-            }
-        });
-
-        // A continuacion busco y devuelvo los datos con los que me registre guardados en la base de datos
-
-        progressDialog = new ProgressDialog(this);
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() != null) {
-
-                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
-                    mDatabase.child(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            bienvenida.setText("Bienvenido "+String.valueOf(dataSnapshot.child("Nombre").getValue())+"!");
-                            documetn.setText("Tu DNI es: "+String.valueOf(dataSnapshot.child("Documento").getValue()));
-                            residencia.setText("Tu residencia es en: "+String.valueOf(dataSnapshot.child("Zona").getValue()));
-
-
-
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    } );
-
-                }
-                else {
-                    startActivity(new Intent(IndexActivity.this, MainActivity.class));
-                    finish();
-                }
-            }
-
-
-
-
-
-        };
 
 
 
     }
 
 
-
-    public void darpermisosdeLOCATION(){
-        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) !=PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(IndexActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-        }
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
