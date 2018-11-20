@@ -2,6 +2,7 @@ package com.example.federico.appandroid;
 
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -73,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
         getZonas(googleMap);
@@ -95,6 +98,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.addMarker(markerOptions);
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(city));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(city,13),5000,null);
+                    mMap.addCircle(new CircleOptions()
+                    .center(city)
+                    .radius(1000)
+                    .strokeWidth(2f)
+                    .strokeColor(Color.GRAY)
+                    .fillColor(0x550000FF));
 
                 }
 
