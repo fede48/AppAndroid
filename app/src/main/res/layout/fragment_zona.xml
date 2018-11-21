@@ -6,12 +6,11 @@
     tools:context=".ZonaFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+
+    <ListView
+        android:id="@+id/zonalistas"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/design_default_color_primary"
-        android:gravity="center"
-        android:text="Zonas"
-        android:textSize="24sp" />
+        android:layout_height="match_parent" />
 
 </FrameLayout>
