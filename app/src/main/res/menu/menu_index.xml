@@ -1,11 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.federico.appandroid.MainActivity">
+    tools:context="com.example.federico.appandroid.IndexActivity">
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:icon="@android:drawable/ic_menu_camera"
+        android:id="@+id/camara"
+        android:title="camara"
+        app:showAsAction="always" />
+
 
 </menu>

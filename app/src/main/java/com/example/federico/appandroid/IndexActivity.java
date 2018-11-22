@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import android.support.v7.widget.Toolbar;
 import com.google.firebase.storage.FirebaseStorage;
 import android.Manifest;
+import android.provider.*;
 
 
 public class IndexActivity extends AppCompatActivity {
@@ -39,7 +43,8 @@ public class IndexActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private NavigationView navigationView;
-
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private ImageView imgImagen;
 
     private FusedLocationProviderClient mfuedLocation;
 
@@ -48,8 +53,9 @@ public class IndexActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent,new HomeFragment()).commit();
 
@@ -101,6 +107,29 @@ public class IndexActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_index, menu);
+        return true;
+    }
+    private void TakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            imgImagen.setImageBitmap(imageBitmap);
+        }
+    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -117,6 +146,7 @@ public class IndexActivity extends AppCompatActivity {
         }
 
         if (id == R.id.camara) {
+            TakePictureIntent();
             return true;
         }
 
