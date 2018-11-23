@@ -15,6 +15,29 @@
     android:theme="@style/Toolbar"
     app:elevation="4dp"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    />
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/add_new_post_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_above="@+id/index"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/add_post_high"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="12dp"
+            android:baselineAlignBottom="false"
+            android:focusableInTouchMode="false"
+            android:background="@color/colorPrimary"
+            />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.Toolbar>
+
 </LinearLayout>

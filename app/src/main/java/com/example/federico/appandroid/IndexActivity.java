@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +48,7 @@ public class IndexActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ImageView imgImagen;
     private RecyclerView postList;
+    private ImageButton addNewPostButton;
 
     private FusedLocationProviderClient mfuedLocation;
 
@@ -58,10 +60,10 @@ public class IndexActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Home");
+        setTitle("Home");
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent,new HomeFragment()).commit();
 
-
+        addNewPostButton = (ImageButton)findViewById(R.id.add_new_post_button);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.index);
         mToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
         mDrawerLayout.addDrawerListener(mToggle);
@@ -100,6 +102,13 @@ public class IndexActivity extends AppCompatActivity {
                 return true;
 
 
+            }
+        });
+
+        addNewPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContent,new PublicacionFragment()).commit();
             }
         });
 
