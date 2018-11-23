@@ -87,6 +87,9 @@ public class IndexActivity extends AppCompatActivity {
                 } else if (id == R.id.home) {
                     selectedFragment = new HomeFragment();
 
+                }else if(id==R.id.logout){
+                    selectedFragment=new SingOut();
+
                 }
 
                 getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment).commit();

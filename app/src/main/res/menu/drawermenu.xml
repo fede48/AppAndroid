@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/home"
-        android:title="Home"
+    <item
+        android:id="@+id/home"
         android:icon="@drawable/home"
-        />
+        android:title="Home" />
 
     <item
         android:id="@+id/zonas"
-        android:title="Zonas"
-        />
+        android:title="Zonas" />
 
-    <item android:id="@+id/publicaciones"
-          android:title="Publicaciones"
-          android:icon="@drawable/add_post"
-        />
+    <item
+        android:id="@+id/publicaciones"
+        android:icon="@drawable/add_post"
+        android:title="Publicaciones" />
 
-    <item android:id="@+id/logout"
-          android:title="Logout"
+    <item
+        android:id="@+id/logout"
         android:icon="@drawable/logout"
-        />
+        android:title="Logout" />
 </menu>

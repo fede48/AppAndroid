@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -43,8 +44,12 @@ public class ZonaFragment extends Fragment {
 
 
 
+
+
     ArrayList<String> lista=new ArrayList<>();
     ArrayAdapter<String>adapter;
+
+    private Boolean suscrito=false;
 
 
     @Override
@@ -55,6 +60,7 @@ public class ZonaFragment extends Fragment {
 
 
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Zona");
 
         adapter=new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,lista);
@@ -65,6 +71,67 @@ public class ZonaFragment extends Fragment {
 
 
 
+        listarZonas();
+
+        recorrerZonas(user);
+
+
+
+
+
+        //subscribirZona();
+
+
+        return view;
+    }
+
+
+    public void suscribirZona(final FirebaseUser user){
+
+        zonas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final String zona= lista.get(position);
+                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                builder.setIcon(R.mipmap.ic_launcher);
+                builder.setTitle("SUBSCRIPCION").setMessage("¿Desea susscribirse?")
+                        .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+
+                               DatabaseReference currentZona=mDatabase.child(zona);
+                               if(suscrito==false){
+                                   currentZona.child("Suscriptores").child(user.getUid()).setValue(user.getEmail());
+
+                                   Toast.makeText(getActivity(),zona,LENGTH_SHORT).show();
+                                   suscrito=true;
+
+                                   Intent intent=new Intent(getActivity(),MapsActivity.class);
+                                   startActivity(intent);
+
+
+
+                               }else {Toast.makeText(getActivity(),"Ya estas acualmente suscrito a una zona",LENGTH_SHORT).show();}
+
+                            }
+                        })
+                        .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(getActivity(),"Cancelado",LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alertDialog=builder.create();
+                alertDialog.show();
+
+
+            }
+        });
+    }
+
+    public void listarZonas(){
         mDatabase.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -72,7 +139,7 @@ public class ZonaFragment extends Fragment {
                 String valor=dataSnapshot.getKey();
                 lista.add(valor);
                 adapter.notifyDataSetChanged();
-                subscribirZona(dataSnapshot);
+
 
             }
 
@@ -97,46 +164,58 @@ public class ZonaFragment extends Fragment {
             }
         });
 
-        //subscribirZona();
-
-
-        return view;
     }
 
+    public void recorrerZonas(final FirebaseUser user){
 
-    public void subscribirZona(final DataSnapshot dataSnapshot){
-
-        zonas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mDatabase.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final String zona= lista.get(position);
-                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
-                builder.setIcon(R.mipmap.ic_launcher);
-                builder.setTitle("SUBSCRIPCION").setMessage("Desea subscribirse?")
-                        .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.child("Suscriptores").hasChild(user.getUid())){
+                    String zonapertenece=dataSnapshot.getKey();
 
-                                String d=dataSnapshot.getKey();
-                                FirebaseUser user = mAuth.getCurrentUser();
-                               DatabaseReference currentUserDB=mDatabase.child(zona);
-                               currentUserDB.child("Sub").setValue(user.getUid());
+                    AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                    builder.setIcon(R.mipmap.ic_launcher)
+                            .setTitle("INFORMACION")
+                            .setMessage("Ya te encuentas suscripto a : " + zonapertenece)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
 
-                                Toast.makeText(getActivity(),zona,LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(getActivity(),"Cancelado",LENGTH_SHORT).show();
-                                dialog.dismiss();
-                            }
-                        });
-                AlertDialog alertDialog=builder.create();
-                alertDialog.show();
+                    AlertDialog alertDialog=builder.create();
+                    alertDialog.show();
 
+                    Toast.makeText(getActivity(),"Te encuentas suscripto a :"+zonapertenece,LENGTH_SHORT).show();
+                    suscrito=true;
+                }
+                suscribirZona(user);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    suscrito=false;
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
+
     }
+
 }
