@@ -1,20 +1,24 @@
 package com.example.federico.appandroid;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,12 +40,12 @@ public class ZonaFragment extends Fragment {
 
 
 
-
+    private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
     private DatabaseReference mDatabase;
 
     private ListView zonas;
     private FirebaseAuth mAuth;
-
+    private Button gomap;
 
 
 
@@ -68,6 +72,19 @@ public class ZonaFragment extends Fragment {
         zonas=(ListView)view.findViewById(R.id.zonalistas);
         zonas.setAdapter(adapter);
 
+        gomap=(Button)view.findViewById(R.id.irmapa);
+
+
+        gomap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                darpermisosdeLOCATION();
+
+                Intent intent=new Intent(getActivity().getApplicationContext(),MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
 
 
@@ -83,6 +100,14 @@ public class ZonaFragment extends Fragment {
 
 
         return view;
+    }
+
+    public void darpermisosdeLOCATION(){
+        if(ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) !=PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+        }
+
     }
 
 

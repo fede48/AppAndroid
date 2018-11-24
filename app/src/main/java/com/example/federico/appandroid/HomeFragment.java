@@ -39,7 +39,7 @@ public class HomeFragment extends Fragment {
     private TextView documetn;
     private TextView residencia;
     private Button cerrar;
-    private Button gomap;
+
 
     private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
@@ -73,32 +73,8 @@ public class HomeFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        bienvenida=(TextView)v.findViewById(R.id.msjbienvenida);
-        documetn=(TextView)v.findViewById(R.id.dni);
-        residencia=(TextView)v.findViewById(R.id.localidad);
-        gomap=(Button)v.findViewById(R.id.irmapa);
-        cerrar=(Button)v.findViewById(R.id.btn_cerrarsesion);
-
-        gomap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                darpermisosdeLOCATION();
-
-                Intent intent=new Intent(getActivity().getApplicationContext(),MapsActivity.class);
-                startActivity(intent);
-            }
-        });
 
 
-
-        //cerrar sesion
-        cerrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getActivity().getApplicationContext(),MainActivity.class));
-            }
-        });
 
 
         // A continuacion busco y devuelvo los datos con los que me registre guardados en la base de datos
@@ -114,9 +90,9 @@ public class HomeFragment extends Fragment {
                     mDatabase.child(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            bienvenida.setText("Bienvenido "+String.valueOf(dataSnapshot.child("Nombre").getValue())+"!");
-                            documetn.setText("Tu DNI es: "+String.valueOf(dataSnapshot.child("Documento").getValue()));
-                            residencia.setText("Tu residencia es en: "+String.valueOf(dataSnapshot.child("Zona").getValue()));
+                            //bienvenida.setText("Bienvenido "+String.valueOf(dataSnapshot.child("Nombre").getValue())+"!");
+                            //documetn.setText("Tu DNI es: "+String.valueOf(dataSnapshot.child("Documento").getValue()));
+                            //residencia.setText("Tu residencia es en: "+String.valueOf(dataSnapshot.child("Zona").getValue()));
 
 
 
@@ -141,6 +117,7 @@ public class HomeFragment extends Fragment {
 
 
         };
+
 
 
         return v;

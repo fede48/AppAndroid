@@ -144,7 +144,7 @@ public class PublicacionFragment extends Fragment {
                 if (task.isSuccessful())
                 {
                     downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
-                    Toast.makeText(getActivity(),"Image uploaded successfully to Storage...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(),"Image uploaded successfully to Storage...", Toast.LENGTH_SHORT).show();
 
                     SavingPostInformationToDatabase();
                 }
