@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -37,6 +38,9 @@ import android.support.v7.widget.Toolbar;
 import com.google.firebase.storage.FirebaseStorage;
 import android.Manifest;
 import android.provider.*;
+import android.content.Context;
+
+import java.io.IOException;
 
 
 public class IndexActivity extends AppCompatActivity {
@@ -45,11 +49,11 @@ public class IndexActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private NavigationView navigationView;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     private ImageView imgImagen;
     private RecyclerView postList;
     private ImageButton addNewPostButton;
-
+    private Uri ImageUri;
+    private int PICK_IMAGE_REQUEST = 1;
     private FusedLocationProviderClient mfuedLocation;
 
 
@@ -80,16 +84,17 @@ public class IndexActivity extends AppCompatActivity {
 
                 if (id == R.id.zonas) {
                     selectedFragment = new ZonaFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Zona_Fragment").commit();
 
                 } else if (id == R.id.publicaciones) {
                     selectedFragment = new PublicacionFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Publicacion_Fragment").commit();
 
                 } else if (id == R.id.home) {
                     selectedFragment = new HomeFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Home_Fragment").commit();
 
                 }
-
-                getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment).commit();
 
                 // Highlight the selected item has been done by NavigationView
                 menuItem.setChecked(true);
@@ -114,7 +119,12 @@ public class IndexActivity extends AppCompatActivity {
 
 
 
+    }
 
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
 
@@ -127,19 +137,9 @@ public class IndexActivity extends AppCompatActivity {
     private void TakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            startActivityForResult(takePictureIntent, PICK_IMAGE_REQUEST);
         }
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imgImagen.setImageBitmap(imageBitmap);
-        }
-    }
-
 
 
     @Override
