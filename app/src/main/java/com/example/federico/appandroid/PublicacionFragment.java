@@ -1,6 +1,7 @@
 package com.example.federico.appandroid;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,12 @@ import android.widget.*;
 import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -34,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import javax.xml.transform.Result;
 
@@ -47,7 +56,10 @@ public class PublicacionFragment extends Fragment {
     private Uri ImageUri;
     private String Descripcion;
     private StorageReference PostsImageReference;
-    private String saveCurrentDate, saveCurrentTime, postRandomName;
+    private String saveCurrentDate, saveCurrentTime, postRandomName, downloadUrl, current_user_id;
+    private DatabaseReference UsersRef, PostsRef;
+    private ProgressDialog loadingBar;
+    private FirebaseAuth mAuth;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,6 +67,15 @@ public class PublicacionFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_publicacion, container, false);
 
+        mAuth = FirebaseAuth.getInstance();
+        current_user_id= mAuth.getCurrentUser().getUid();
+
+
+        UsersRef = FirebaseDatabase.getInstance().getReference().child("Usuarios");
+        PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
+
+
+        loadingBar = new ProgressDialog(getActivity());
         UpdatePostButton = (Button) v.findViewById(R.id.update_post_button);
         PostDescription = (EditText) v.findViewById(R.id.post_description);
         selectPostImage =(ImageButton)v.findViewById(R.id.select_post_image);
@@ -93,6 +114,11 @@ public class PublicacionFragment extends Fragment {
         }
         else
         {
+            loadingBar.setTitle("Nuevo Post");
+            loadingBar.setMessage("Por Favor espere, se esta subiendo un nuevo post..");
+            loadingBar.show();
+            loadingBar.setCanceledOnTouchOutside(true);
+
             StoringImageToFirebaseStorage();
         }
 
@@ -117,13 +143,67 @@ public class PublicacionFragment extends Fragment {
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful())
                 {
+                    downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
                     Toast.makeText(getActivity(),"Image uploaded successfully to Storage...", Toast.LENGTH_SHORT).show();
+
+                    SavingPostInformationToDatabase();
                 }
                 else
                 {
                     String message= task.getException().getMessage();
                     Toast.makeText(getActivity(),"Error occured: "+ message, Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+    }
+
+    private void SavingPostInformationToDatabase()
+    {
+
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
+        database.child("Usuarios").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists())
+                {
+                    String UserNombre = dataSnapshot.child(current_user_id).child("Nombre").getValue().toString();
+                    String UserApellido = dataSnapshot.child(current_user_id).child("Apellido").getValue().toString();
+                    String fullname = UserNombre + " " +UserApellido;
+
+                    HashMap postsMap = new HashMap();
+                    postsMap.put("uid",current_user_id);
+                    postsMap.put("date",saveCurrentDate);
+                    postsMap.put("time",saveCurrentTime);
+                    postsMap.put("description",Descripcion);
+                    postsMap.put("postimage",downloadUrl);
+                    postsMap.put("fullname", fullname);
+                    PostsRef.child(postRandomName).updateChildren(postsMap)
+                            .addOnCompleteListener(new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+
+                                    if (task.isSuccessful())
+                                    {
+                                        Toast.makeText(getActivity(),"Post is updated successfully ", Toast.LENGTH_SHORT).show();
+                                        loadingBar.dismiss();
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(getActivity(),"Error occured while updating your post", Toast.LENGTH_SHORT).show();
+                                        loadingBar.dismiss();
+                                    }
+
+                                }
+                            });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }

@@ -84,22 +84,19 @@ public class IndexActivity extends AppCompatActivity {
 
                 if (id == R.id.zonas) {
                     selectedFragment = new ZonaFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Zona_Fragment").commit();
 
                 } else if (id == R.id.publicaciones) {
                     selectedFragment = new PublicacionFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Publicacion_Fragment").commit();
 
                 } else if (id == R.id.home) {
                     selectedFragment = new HomeFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Home_Fragment").commit();
 
                 }else if(id==R.id.logout){
                     selectedFragment=new SingOut();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"SingOut_Fragment").commit();
 
                 }
 
+                getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment).commit();
                 // Highlight the selected item has been done by NavigationView
                 menuItem.setChecked(true);
                 // Set action bar title
