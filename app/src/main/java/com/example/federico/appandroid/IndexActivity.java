@@ -94,6 +94,9 @@ public class IndexActivity extends AppCompatActivity {
                     selectedFragment = new HomeFragment();
                     getSupportFragmentManager().beginTransaction().replace(R.id.flContent,selectedFragment,"Home_Fragment").commit();
 
+                }else if(id==R.id.logout){
+                    selectedFragment=new SingOut();
+
                 }
 
                 // Highlight the selected item has been done by NavigationView
