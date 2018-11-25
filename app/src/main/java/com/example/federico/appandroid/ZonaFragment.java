@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -45,7 +46,7 @@ public class ZonaFragment extends Fragment {
 
     private ListView zonas;
     private FirebaseAuth mAuth;
-    private Button gomap;
+    private FloatingActionButton gomap;
 
 
 
@@ -72,7 +73,7 @@ public class ZonaFragment extends Fragment {
         zonas=(ListView)view.findViewById(R.id.zonalistas);
         zonas.setAdapter(adapter);
 
-        gomap=(Button)view.findViewById(R.id.irmapa);
+        gomap= (FloatingActionButton) view.findViewById(R.id.irmapa);
 
 
         gomap.setOnClickListener(new View.OnClickListener() {
