@@ -9,13 +9,17 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
@@ -32,6 +36,8 @@ import android.Manifest;
 import android.content.*;
 import android.support.v4.app.*;
 import android.content.pm.*;
+import com.squareup.picasso.Picasso;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
 
@@ -41,16 +47,15 @@ public class HomeFragment extends Fragment {
     private Button cerrar;
 
 
-    private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
-
     private FusedLocationProviderClient mfuedLocation;
-
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
     private ProgressDialog progressDialog;
+    private RecyclerView postList;
+    private DatabaseReference mDatabase, PostsRef;
 
-    private DatabaseReference mDatabase;
+
 
     @Override
     public void onStart(){
@@ -74,12 +79,18 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-
-
-
         // A continuacion busco y devuelvo los datos con los que me registre guardados en la base de datos
 
+        postList = (RecyclerView)v.findViewById(R.id.all_users_post_list);
+        postList.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        postList.setLayoutManager(linearLayoutManager);
+        PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
+
         progressDialog = new ProgressDialog(getActivity().getApplicationContext());
+
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -118,9 +129,76 @@ public class HomeFragment extends Fragment {
 
         };
 
+        DisplayAllUsersPosts();
 
 
         return v;
+    }
+
+    private void DisplayAllUsersPosts()
+    {
+        FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter =
+                new FirebaseRecyclerAdapter<Posts, PostsViewHolder>
+                (
+                        Posts.class,
+                        R.layout.all_posts_layout,
+                        PostsViewHolder.class,
+                        PostsRef
+                )
+                {
+                    @Override
+                    protected void populateViewHolder(PostsViewHolder viewHolder, Posts model, int position)
+                    {
+                        viewHolder.setFullname(model.getFullname());
+                        viewHolder.setTime(model.getTime());
+                        viewHolder.setDate(model.getDate());
+                        viewHolder.setDescription(model.getDescription());
+                        viewHolder.setPostimage(getActivity().getApplicationContext(),model.getPostimage());
+                    }
+                };
+        postList.setAdapter(firebaseRecyclerAdapter);
+    }
+
+    public static class PostsViewHolder extends RecyclerView.ViewHolder
+    {
+        View mView;
+
+        public PostsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mView = itemView;
+
+        }
+
+        public void setFullname(String fullname)
+        {
+            TextView username = (TextView) mView.findViewById(R.id.post_user_name);
+            username.setText(fullname);
+        }
+
+        public void setTime(String time)
+        {
+            TextView PostTime = (TextView) mView.findViewById(R.id.post_time);
+            PostTime.setText("   "+time);
+        }
+
+        public void setDate(String date)
+        {
+            TextView PostDate= (TextView) mView.findViewById(R.id.post_date);
+            PostDate.setText("   "+ date);
+        }
+
+        public void setDescription(String description)
+        {
+            TextView PostDescription= (TextView) mView.findViewById(R.id.post_description);
+            PostDescription.setText(description);
+        }
+
+        public void setPostimage(Context ctx,String postimage)
+        {
+            ImageView PostImage = (ImageView) mView.findViewById(R.id.post_image);
+            Picasso.with(ctx).load(postimage).into(PostImage);
+
+        }
     }
 
 
@@ -130,15 +208,6 @@ public class HomeFragment extends Fragment {
 
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
-    }
-
-
-    public void darpermisosdeLOCATION(){
-        if(ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_FINE_LOCATION) !=PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-        }
-
     }
 
 

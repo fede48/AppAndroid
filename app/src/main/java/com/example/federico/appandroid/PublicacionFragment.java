@@ -26,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.*;
 
 import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -137,24 +138,30 @@ public class PublicacionFragment extends Fragment {
 
         postRandomName = saveCurrentDate + saveCurrentTime;
 
-        StorageReference filePath = PostsImageReference.child("Post Images").child(ImageUri.getLastPathSegment() + postRandomName + ".jpg");
-        filePath.putFile(ImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        final StorageReference filePath = PostsImageReference.child("Post Images").child(ImageUri.getLastPathSegment() + postRandomName + ".jpg");
+        
+        filePath.putFile(ImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful())
-                {
-                    downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
-                    //Toast.makeText(getActivity(),"Image uploaded successfully to Storage...", Toast.LENGTH_SHORT).show();
-
-                    SavingPostInformationToDatabase();
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
                 }
-                else
-                {
+                return filePath.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    downloadUrl = task.getResult().toString();
+                    SavingPostInformationToDatabase();
+
+                } else {
                     String message= task.getException().getMessage();
                     Toast.makeText(getActivity(),"Error occured: "+ message, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
 
     private void SavingPostInformationToDatabase()
