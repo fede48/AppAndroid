@@ -15,6 +15,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -78,7 +79,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
+
         getZonas(googleMap);
+
+
+
 
 
     }
@@ -88,12 +93,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mDatabase.child("Zona").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+
                 for (DataSnapshot snapshot1 : dataSnapshot.getChildren()) {
+
                     MapaFirebase mp = snapshot1.getValue(MapaFirebase.class);
+                    long cant=snapshot1.child("Suscriptores").getChildrenCount();
                     Double latitud = mp.getLatitud();
                     Double longitud = mp.getLongitud();
                     LatLng city= new LatLng(latitud,longitud);
-                    MarkerOptions markerOptions = new MarkerOptions();
+
+                    MarkerOptions markerOptions = new MarkerOptions().title(mp.getNombre()).snippet("cantidad de suscriptores: "+cant);
                     markerOptions.position(city);
                     mMap.addMarker(markerOptions);
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(city));
@@ -105,7 +116,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .strokeColor(Color.GRAY)
                     .fillColor(0x550000FF));
 
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            marker.showInfoWindow();
+                            return true;
+                        }
+                    });
+
+
+
                 }
+
+
 
 
             }
@@ -114,10 +137,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
 
-                // Add a marker in Sydney and move the camera
             }
         });
     }
+
+    public void masinfo(GoogleMap googleMap){
+        mMap=googleMap;
+
+
+    }
+
+
 }
 
 

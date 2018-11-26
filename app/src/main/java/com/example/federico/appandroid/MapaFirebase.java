@@ -8,6 +8,14 @@ public class MapaFirebase {
 
 
 
+
+
+
+    private String Nombre;
+
+
+
+
     public double getLatitud() {
         return latitud;
     }
@@ -23,6 +31,10 @@ public class MapaFirebase {
     public void setLongitud(double longitud) {
         this.longitud = longitud;
     }
+    public String getNombre() {
+        return Nombre;
+    }
+
 
 
     public MapaFirebase() {

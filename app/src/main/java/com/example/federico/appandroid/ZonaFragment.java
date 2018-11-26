@@ -130,7 +130,7 @@ public class ZonaFragment extends Fragment {
                                if(suscrito==false){
                                    currentZona.child("Suscriptores").child(user.getUid()).setValue(user.getEmail());
 
-                                   Toast.makeText(getActivity(),zona,LENGTH_SHORT).show();
+                                   Toast.makeText(getActivity(),"Suscripto a "+ zona,LENGTH_SHORT).show();
                                    suscrito=true;
 
                                    Intent intent=new Intent(getActivity(),MapsActivity.class);
@@ -138,7 +138,10 @@ public class ZonaFragment extends Fragment {
 
 
 
-                               }else {Toast.makeText(getActivity(),"Ya estas acualmente suscrito a una zona",LENGTH_SHORT).show();}
+                               }else {
+                                    Toast.makeText(getActivity(),"No se pudo realizar la suscripcion",LENGTH_SHORT).show();
+                                    desuscribirte(user);
+                               }
 
                             }
                         })
@@ -203,7 +206,7 @@ public class ZonaFragment extends Fragment {
                     AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
                     builder.setIcon(R.mipmap.ic_launcher)
                             .setTitle("INFORMACION")
-                            .setMessage("Ya te encuentas suscripto a : " + zonapertenece)
+                            .setMessage("Ya te encuentas suscripto a  " + zonapertenece)
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -241,6 +244,70 @@ public class ZonaFragment extends Fragment {
 
             }
         });
+
+    }
+
+    public void desuscribirte(final FirebaseUser user){
+        mDatabase.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull final DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.child("Suscriptores").hasChild(user.getUid())){
+                    final String zonapertenece=dataSnapshot.getKey();
+
+                    AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                    builder.setIcon(R.mipmap.ic_launcher)
+                            .setTitle("INFORMACION")
+                            .setMessage("Ya te encuentas suscripto a  " + zonapertenece + " ¿Deseas desuscribirte?")
+                            .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dataSnapshot.child("Suscriptores").child(user.getUid()).getRef().removeValue();
+                                    suscrito=false;
+                                    Toast.makeText(getActivity(),"Saliste de "+zonapertenece,LENGTH_SHORT).show();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(getActivity(),"Cancelado",LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    AlertDialog alertDialog=builder.create();
+                    alertDialog.show();
+
+
+                    suscrito=true;
+                }
+
+
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                suscrito=false;
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
 
     }
 
