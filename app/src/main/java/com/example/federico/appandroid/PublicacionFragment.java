@@ -139,7 +139,7 @@ public class PublicacionFragment extends Fragment {
         postRandomName = saveCurrentDate + saveCurrentTime;
 
         final StorageReference filePath = PostsImageReference.child("Post Images").child(ImageUri.getLastPathSegment() + postRandomName + ".jpg");
-        
+
         filePath.putFile(ImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
