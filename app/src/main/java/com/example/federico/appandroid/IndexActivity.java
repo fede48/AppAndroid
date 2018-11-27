@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -56,11 +57,19 @@ public class IndexActivity extends AppCompatActivity {
     private int PICK_IMAGE_REQUEST = 1;
     private FusedLocationProviderClient mfuedLocation;
 
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
+    private TextView usernamemenu;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
+
+        mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser user = mAuth.getCurrentUser();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
@@ -75,12 +84,17 @@ public class IndexActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
+
+
         navigationView = (NavigationView) findViewById(R.id.navigation_menu);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 Fragment selectedFragment = null;
+
+                usernamemenu=(TextView)findViewById(R.id.username);
+                usernamemenu.setText(user.getEmail());
 
                 if (id == R.id.zonas) {
                     selectedFragment = new ZonaFragment();
@@ -101,6 +115,9 @@ public class IndexActivity extends AppCompatActivity {
                 menuItem.setChecked(true);
                 // Set action bar title
                 setTitle(menuItem.getTitle());
+
+
+
                 // Close the navigation drawer
                 mDrawerLayout.closeDrawers();
 
