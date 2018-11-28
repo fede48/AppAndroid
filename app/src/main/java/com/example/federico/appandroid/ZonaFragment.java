@@ -130,6 +130,9 @@ public class ZonaFragment extends Fragment {
                                if(suscrito==false){
                                    currentZona.child("Suscriptores").child(user.getUid()).setValue(user.getEmail());
 
+                                   DatabaseReference mDatabase2= FirebaseDatabase.getInstance().getReference().child("Usuarios");
+                                   mDatabase2.child(user.getUid()).child("Zona").setValue(zona);
+
                                    Toast.makeText(getActivity(),"Suscripto a "+ zona,LENGTH_SHORT).show();
                                    suscrito=true;
 
@@ -262,6 +265,9 @@ public class ZonaFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dataSnapshot.child("Suscriptores").child(user.getUid()).getRef().removeValue();
+
+                                    DatabaseReference mDatabase3= FirebaseDatabase.getInstance().getReference().child("Usuarios");
+                                    mDatabase3.child(user.getUid()).child("Zona").setValue("");
                                     suscrito=false;
                                     Toast.makeText(getActivity(),"Saliste de "+zonapertenece,LENGTH_SHORT).show();
                                 }
