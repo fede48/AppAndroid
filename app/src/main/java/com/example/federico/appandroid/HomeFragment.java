@@ -54,6 +54,7 @@ public class HomeFragment extends Fragment {
     private ProgressDialog progressDialog;
     private RecyclerView postList;
     private DatabaseReference mDatabase, PostsRef;
+    private  String current_user_id;
 
 
 
@@ -92,12 +93,14 @@ public class HomeFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity().getApplicationContext());
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
+        current_user_id= mAuth.getCurrentUser().getUid();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
 
-                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
                     mDatabase.child(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -132,6 +135,7 @@ public class HomeFragment extends Fragment {
         DisplayAllUsersPosts();
 
 
+
         return v;
     }
 
@@ -147,16 +151,48 @@ public class HomeFragment extends Fragment {
                 )
                 {
                     @Override
-                    protected void populateViewHolder(PostsViewHolder viewHolder, Posts model, int position)
+                    protected void populateViewHolder( final PostsViewHolder viewHolder, final Posts model, int position)
                     {
-                        viewHolder.setFullname(model.getFullname());
-                        viewHolder.setTime(model.getTime());
-                        viewHolder.setDate(model.getDate());
-                        viewHolder.setDescription(model.getDescription());
-                        viewHolder.setPostimage(getActivity().getApplicationContext(),model.getPostimage());
+
+                        FirebaseDatabase.getInstance().getReference()
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        String zonaCurrentUser =  dataSnapshot.child("Usuarios").child(current_user_id).child("Zona").getValue().toString();
+
+                                        for (DataSnapshot snapshot : dataSnapshot.child("Posts").getChildren())
+                                        {
+
+                                            Posts post = snapshot.getValue(Posts.class);
+
+                                            if (!zonaCurrentUser.isEmpty() && zonaCurrentUser.equals(post.getZona())) {
+
+                                                viewHolder.setFullname(model.getFullname());
+                                                viewHolder.setTime(model.getTime());
+                                                viewHolder.setDate(model.getDate());
+                                                viewHolder.setDescription(model.getDescription());
+                                                viewHolder.setPostimage(getActivity().getApplicationContext(), model.getPostimage());
+
+                                            }
+
+                                        }
+
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+
                     }
                 };
-        postList.setAdapter(firebaseRecyclerAdapter);
+
+
+
+        if (firebaseRecyclerAdapter.getItemCount() > 0)
+        {
+            postList.setAdapter(firebaseRecyclerAdapter);
+        }
     }
 
     public static class PostsViewHolder extends RecyclerView.ViewHolder
