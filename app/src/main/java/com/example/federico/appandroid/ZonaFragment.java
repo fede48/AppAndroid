@@ -14,12 +14,15 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -48,6 +51,8 @@ public class ZonaFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FloatingActionButton gomap;
 
+    private EditText buscar;
+
 
 
 
@@ -67,6 +72,7 @@ public class ZonaFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Zona");
+        buscar=(EditText)view.findViewById(R.id.buscarZona);
 
         adapter=new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,lista);
 
@@ -92,6 +98,8 @@ public class ZonaFragment extends Fragment {
         listarZonas();
 
         recorrerZonas(user);
+
+        buscarzona();
 
 
 
@@ -129,6 +137,9 @@ public class ZonaFragment extends Fragment {
                                DatabaseReference currentZona=mDatabase.child(zona);
                                if(suscrito==false){
                                    currentZona.child("Suscriptores").child(user.getUid()).setValue(user.getEmail());
+
+                                   DatabaseReference mDatabase2= FirebaseDatabase.getInstance().getReference().child("Usuarios");
+                                   mDatabase2.child(user.getUid()).child("Zona").setValue(zona);
 
                                    Toast.makeText(getActivity(),"Suscripto a "+ zona,LENGTH_SHORT).show();
                                    suscrito=true;
@@ -262,6 +273,9 @@ public class ZonaFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dataSnapshot.child("Suscriptores").child(user.getUid()).getRef().removeValue();
+
+                                    DatabaseReference mDatabase3= FirebaseDatabase.getInstance().getReference().child("Usuarios");
+                                    mDatabase3.child(user.getUid()).child("Zona").setValue("");
                                     suscrito=false;
                                     Toast.makeText(getActivity(),"Saliste de "+zonapertenece,LENGTH_SHORT).show();
                                 }
@@ -308,6 +322,28 @@ public class ZonaFragment extends Fragment {
         });
 
 
+
+    }
+
+    public void buscarzona(){
+
+        buscar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
     }
 
