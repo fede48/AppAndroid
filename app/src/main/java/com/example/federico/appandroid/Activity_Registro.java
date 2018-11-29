@@ -94,11 +94,13 @@ public class Activity_Registro extends AppCompatActivity {
 
                             DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference().child("Usuarios");
                             DatabaseReference currentUserDB=mDatabase.child(user.getUid());
+                            currentUserDB.child("Rol").setValue("user");
                             currentUserDB.child("Nombre").setValue(nombre.getText().toString());
                             currentUserDB.child("Apellido").setValue(apellido.getText().toString());
                             currentUserDB.child("Documento").setValue(dni.getText().toString());
                             currentUserDB.child("Zona").setValue(localidad.getText().toString());
                             currentUserDB.child("Email").setValue(email.getText().toString());
+
 
 
                             Toast.makeText(Activity_Registro.this, "Registro con exito",

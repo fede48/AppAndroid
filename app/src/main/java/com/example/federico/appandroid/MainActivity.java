@@ -2,8 +2,6 @@ package com.example.federico.appandroid;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -17,9 +15,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import android.support.annotation.NonNull;
-import android.provider.*;
-import android.graphics.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
 
 
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         btn_login=(Button)findViewById(R.id.btn_login);
         btn_aceptar = findViewById(R.id.btn_aceptar);
         usuario_nombre = (EditText) findViewById(R.id.usuario_txt);
@@ -82,10 +86,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() !=null){
-                    Toast.makeText(MainActivity.this,"Estas Logueado en : " +firebaseAuth.getCurrentUser().getUid(),Toast.LENGTH_SHORT).show();
-                    Intent intent=new Intent(MainActivity.this,IndexActivity.class);
-                    startActivity(intent);
-                    finish();
+                    Toast.makeText(MainActivity.this,"Estas Logueado en la cuenta : " +firebaseAuth.getCurrentUser().getEmail(),Toast.LENGTH_SHORT).show();
+
+                    //CHEQIEA SI EL USUARIO ES ADM O USER Y LO REEDIRIGE A SU RESPECTIVA ACTIVIDAD
+                    mDatabase.child("Usuarios").child(firebaseAuth.getCurrentUser().getUid()).child("Rol").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue(String.class).equals("adm")) {
+                                Intent intent = new Intent(MainActivity.this,Indexadm.class);
+                                startActivity(intent);
+                                finish();
+
+                            }
+                            else {
+                                Intent intent = new Intent(MainActivity.this, IndexActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
+
+
                 }
 
             }
@@ -157,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
+
                                 Toast.makeText(MainActivity.this, "Bienvenido: " + usuario,
                                         Toast.LENGTH_SHORT).show();
 
