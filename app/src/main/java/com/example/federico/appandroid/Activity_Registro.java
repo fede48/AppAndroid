@@ -23,7 +23,6 @@ public class Activity_Registro extends AppCompatActivity {
     private EditText nombre;
     private EditText apellido;
     private EditText dni;
-    private EditText localidad;
     private EditText email;
     private EditText pw;
     private FirebaseAuth mAuth;
@@ -41,7 +40,6 @@ public class Activity_Registro extends AppCompatActivity {
         nombre=(EditText)findViewById(R.id.name);
         apellido=(EditText)findViewById(R.id.surname);
         dni=(EditText)findViewById(R.id.documento);
-        localidad=(EditText)findViewById(R.id.zona);
         enviarregistro=(Button) findViewById(R.id.send);
         cancelar=(Button)findViewById(R.id.btn_cancelar);
 
@@ -98,7 +96,8 @@ public class Activity_Registro extends AppCompatActivity {
                             currentUserDB.child("Nombre").setValue(nombre.getText().toString());
                             currentUserDB.child("Apellido").setValue(apellido.getText().toString());
                             currentUserDB.child("Documento").setValue(dni.getText().toString());
-                            currentUserDB.child("Zona").setValue(localidad.getText().toString());
+                            currentUserDB.child("Zona").setValue("");
+                            currentUserDB.child("Zona").setValue("user");
                             currentUserDB.child("Email").setValue(email.getText().toString());
 
 

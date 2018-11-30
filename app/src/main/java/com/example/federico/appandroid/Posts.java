@@ -5,20 +5,28 @@ import android.content.Context;
 
 public class Posts
 {
-    public  String uid,time, date,description,postimage,fullname;
+    public  String uid;
+    public String time;
+    public String date;
+    public String description;
+    public String postimage;
+    public String fullname;
+    public String zona;
 
     public Posts()
     {
 
     }
 
-    public Posts(String uid, String time, String date, String description, String postimage, String fullname) {
+    public Posts(String uid, String time, String date, String description, String postimage, String fullname,String zona) {
         this.uid = uid;
         this.time = time;
         this.date = date;
         this.description = description;
         this.postimage = postimage;
         this.fullname = fullname;
+        this.zona = zona;
+
     }
 
     public String getUid() {
@@ -68,4 +76,10 @@ public class Posts
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }
+
+    public String getZona() { return zona; }
+
+    public void setZona(String zona) { this.zona = zona; }
+
+
 }

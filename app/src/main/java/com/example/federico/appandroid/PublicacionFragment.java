@@ -177,6 +177,7 @@ public class PublicacionFragment extends Fragment {
                 {
                     String UserNombre = dataSnapshot.child(current_user_id).child("Nombre").getValue().toString();
                     String UserApellido = dataSnapshot.child(current_user_id).child("Apellido").getValue().toString();
+                    String zona = dataSnapshot.child(current_user_id).child("Zona").getValue().toString();
                     String fullname = UserNombre + " " +UserApellido;
 
                     HashMap postsMap = new HashMap();
@@ -186,6 +187,8 @@ public class PublicacionFragment extends Fragment {
                     postsMap.put("description",Descripcion);
                     postsMap.put("postimage",downloadUrl);
                     postsMap.put("fullname", fullname);
+                    postsMap.put("zona", zona);
+
                     PostsRef.child(postRandomName).updateChildren(postsMap)
                             .addOnCompleteListener(new OnCompleteListener() {
                                 @Override

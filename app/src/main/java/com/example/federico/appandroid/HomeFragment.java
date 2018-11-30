@@ -46,7 +46,6 @@ public class HomeFragment extends Fragment {
     private TextView residencia;
     private Button cerrar;
 
-
     private FusedLocationProviderClient mfuedLocation;
 
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -54,7 +53,7 @@ public class HomeFragment extends Fragment {
     private ProgressDialog progressDialog;
     private RecyclerView postList;
     private DatabaseReference mDatabase, PostsRef;
-
+    private  String current_user_id;
 
 
     @Override
@@ -92,12 +91,14 @@ public class HomeFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity().getApplicationContext());
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
+        current_user_id= mAuth.getCurrentUser().getUid();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
 
-                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
                     mDatabase.child(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -132,11 +133,13 @@ public class HomeFragment extends Fragment {
         DisplayAllUsersPosts();
 
 
+
         return v;
     }
 
     private void DisplayAllUsersPosts()
     {
+
         FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter =
                 new FirebaseRecyclerAdapter<Posts, PostsViewHolder>
                 (
@@ -146,17 +149,61 @@ public class HomeFragment extends Fragment {
                         PostsRef
                 )
                 {
+
                     @Override
-                    protected void populateViewHolder(PostsViewHolder viewHolder, Posts model, int position)
+                    protected void populateViewHolder(final PostsViewHolder viewHolder, final Posts model, final int position)
                     {
-                        viewHolder.setFullname(model.getFullname());
-                        viewHolder.setTime(model.getTime());
-                        viewHolder.setDate(model.getDate());
-                        viewHolder.setDescription(model.getDescription());
-                        viewHolder.setPostimage(getActivity().getApplicationContext(),model.getPostimage());
+
+
+
+                        FirebaseDatabase.getInstance().getReference()
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        String zonaCurrentUser =  dataSnapshot.child("Usuarios").child(current_user_id).child("Zona").getValue().toString();
+
+                                        for (DataSnapshot snapshot : dataSnapshot.child("Posts").getChildren())
+                                        {
+
+                                            Posts post = snapshot.getValue(Posts.class);
+                                            boolean compareZona =!zonaCurrentUser.isEmpty() && zonaCurrentUser.trim().equalsIgnoreCase(post.zona.trim());
+                                            if (compareZona) {
+
+                                                final String PostKey = getRef(position).getKey();
+
+                                                viewHolder.setFullname(model.getFullname());
+                                                viewHolder.setTime(model.getTime());
+                                                viewHolder.setDate(model.getDate());
+                                                viewHolder.setDescription(model.getDescription());
+                                                viewHolder.setPostimage(getActivity().getApplicationContext(), model.getPostimage());
+
+                                                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        Intent clickPostIntent = new Intent(getActivity(), ClickPostActivity.class );
+                                                        clickPostIntent.putExtra("PostKey",PostKey);
+                                                        startActivity(clickPostIntent);
+                                                    }
+                                                });
+
+                                            }
+
+                                        }
+
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+
                     }
                 };
+
+
+
         postList.setAdapter(firebaseRecyclerAdapter);
+
     }
 
     public static class PostsViewHolder extends RecyclerView.ViewHolder
