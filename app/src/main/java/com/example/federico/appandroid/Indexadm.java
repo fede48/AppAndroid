@@ -3,6 +3,7 @@ package com.example.federico.appandroid;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -79,20 +80,28 @@ public class Indexadm extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Fragment selectedFragment = null;
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.alertas) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.zonasolici) {
+            selectedFragment = new addZonaFragment();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.homeadm) {
+            selectedFragment = new HomeFragment();
 
-        } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.cerrarsesion) {
+            selectedFragment=new SingOut();
 
         }
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.flContentadm,selectedFragment).commit();
+        // Highlight the selected item has been done by NavigationView
+        item.setChecked(true);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

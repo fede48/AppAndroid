@@ -231,11 +231,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         String nombre= input.getText().toString();
-                                        DatabaseReference database=mDatabase.child("Zona");
-                                        DatabaseReference currentZona=database.child(nombre);
-                                        currentZona.child("Nombre").setValue(nombre);
-                                        currentZona.child("latitud").setValue(lat);
-                                        currentZona.child("longitud").setValue(lon);
+
+                                        DatabaseReference database=mDatabase.child("SolicitudZonas");
+                                        DatabaseReference currentuser=database.child(mAuth.getCurrentUser().getUid());
+                                        currentuser.child("Solicitante").setValue(mAuth.getCurrentUser().getEmail());
+                                        currentuser.child("NombreZona").setValue(nombre);
+                                        currentuser.child("coordenadas").setValue(latLng);
+                                        //DatabaseReference database=mDatabase.child("Zona");
+                                        //DatabaseReference currentZona=database.child(nombre);
+                                        //currentZona.child("Nombre").setValue(nombre);
+                                        //currentZona.child("latitud").setValue(lat);
+                                        //currentZona.child("longitud").setValue(lon);
 
                                         Toast.makeText(MapsActivity.this,"HAS AGREGADO LA ZONA"+ nombre,LENGTH_SHORT).show();
                                         dialog.dismiss();

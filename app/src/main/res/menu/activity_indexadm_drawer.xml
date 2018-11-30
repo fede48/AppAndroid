@@ -4,22 +4,24 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
+
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/homeadm"
+            android:icon="@drawable/home"
+            android:title="Home" />
+        <item
+            android:id="@+id/zonasolici"
             android:icon="@drawable/ic_zonacrear"
             android:title="Solicitud de Zonas" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/alertas"
             android:icon="@drawable/ic_notify"
             android:title="Alertas" />
+
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slidesh" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/cerrarsesion"
+            android:icon="@drawable/logout"
+            android:title="Logoout" />
     </group>
 
     <item android:title="Communicate">
