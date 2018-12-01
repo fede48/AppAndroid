@@ -174,7 +174,6 @@ public class HomeFragment extends Fragment {
                                             if (compareZona) {
 
                                                 final String PostKey = getRef(position).getKey();
-
                                                 viewHolder.setFullname(model.getFullname());
                                                 viewHolder.setTime(model.getTime());
                                                 viewHolder.setDate(model.getDate());
@@ -190,6 +189,16 @@ public class HomeFragment extends Fragment {
                                                         Intent clickPostIntent = new Intent(getActivity(), ClickPostActivity.class );
                                                         clickPostIntent.putExtra("PostKey",PostKey);
                                                         startActivity(clickPostIntent);
+                                                    }
+                                                });
+
+                                                viewHolder.CommentPostButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v)
+                                                    {
+                                                        Intent commentsPostIntent = new Intent(getActivity(), CommentsActivity.class );
+                                                        commentsPostIntent .putExtra("PostKey",PostKey);
+                                                        startActivity(commentsPostIntent);
                                                     }
                                                 });
 
@@ -242,8 +251,8 @@ public class HomeFragment extends Fragment {
                 };
 
 
-
         postList.setAdapter(firebaseRecyclerAdapter);
+
 
     }
 

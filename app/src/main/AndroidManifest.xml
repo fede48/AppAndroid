@@ -56,7 +56,8 @@
             android:name=".Indexadm"
             android:label="@string/title_activity_indexadm"
             android:theme="@style/AppTheme" />
-        <activity android:name=".ClickPostActivity"></activity>
+        <activity android:name=".ClickPostActivity" />
+        <activity android:name=".CommentsActivity"></activity>
     </application>
 
 </manifest>
