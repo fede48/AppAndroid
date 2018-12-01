@@ -12,7 +12,7 @@
     <item
         android:id="@+id/publicaciones"
         android:icon="@drawable/add_post"
-        android:title="Publicaciones" />
+        android:title="Nuevo Post" />
 
     <item
         android:id="@+id/logout"
