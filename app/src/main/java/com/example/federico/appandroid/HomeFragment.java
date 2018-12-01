@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,8 +53,9 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private ProgressDialog progressDialog;
     private RecyclerView postList;
-    private DatabaseReference mDatabase, PostsRef;
+    private DatabaseReference mDatabase, PostsRef, LikesRef;
     private  String current_user_id;
+    Boolean LikeChecker = false;
 
 
     @Override
@@ -87,6 +89,7 @@ public class HomeFragment extends Fragment {
         linearLayoutManager.setStackFromEnd(true);
         postList.setLayoutManager(linearLayoutManager);
         PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
+        LikesRef = FirebaseDatabase.getInstance().getReference().child("Likes");
 
         progressDialog = new ProgressDialog(getActivity().getApplicationContext());
 
@@ -178,12 +181,50 @@ public class HomeFragment extends Fragment {
                                                 viewHolder.setDescription(model.getDescription());
                                                 viewHolder.setPostimage(getActivity().getApplicationContext(), model.getPostimage());
 
+                                                viewHolder.setLikeButtonStatus(PostKey);
+
+
                                                 viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                                                     @Override
                                                     public void onClick(View v) {
                                                         Intent clickPostIntent = new Intent(getActivity(), ClickPostActivity.class );
                                                         clickPostIntent.putExtra("PostKey",PostKey);
                                                         startActivity(clickPostIntent);
+                                                    }
+                                                });
+
+                                                viewHolder.LikePostButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v)
+                                                    {
+                                                        LikeChecker = true;
+
+                                                        LikesRef.addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                                                if (LikeChecker.equals(true))
+                                                                {
+                                                                    if (dataSnapshot.child(PostKey).hasChild(current_user_id))
+                                                                    {
+                                                                        LikesRef.child(PostKey).child(current_user_id).removeValue();
+                                                                        LikeChecker  = false;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        LikesRef.child(PostKey).child(current_user_id).setValue(true);
+                                                                        LikeChecker  = false;
+                                                                    }
+
+                                                                }
+
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                            }
+                                                        });
                                                     }
                                                 });
 
@@ -210,9 +251,49 @@ public class HomeFragment extends Fragment {
     {
         View mView;
 
+        ImageButton LikePostButton, CommentPostButton;
+        TextView DisplayNoOfLikes;
+        int countLikes;
+        String currentUserId;
+        DatabaseReference LikesRef;
+
         public PostsViewHolder(@NonNull View itemView) {
             super(itemView);
             mView = itemView;
+
+            LikePostButton = (ImageButton) mView.findViewById(R.id.like_button);
+            CommentPostButton = (ImageButton) mView.findViewById(R.id.comment_button);
+            DisplayNoOfLikes = (TextView) mView.findViewById(R.id.display_no_of_likes);
+            LikesRef = FirebaseDatabase.getInstance().getReference().child("Likes");
+            currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        }
+
+        public void setLikeButtonStatus(final String PostKey)
+        {
+            LikesRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.child(PostKey).hasChild(currentUserId))
+                    {
+                        countLikes = (int) dataSnapshot.child(PostKey).getChildrenCount();
+                        LikePostButton.setImageResource(R.drawable.like);
+                        DisplayNoOfLikes.setText((Integer.toString(countLikes) + ("Likes")));
+                    }
+                    else
+                    {
+                        countLikes = (int) dataSnapshot.child(PostKey).getChildrenCount();
+                        LikePostButton.setImageResource(R.drawable.dislike);
+                        DisplayNoOfLikes.setText((Integer.toString(countLikes) + ("Likes")));
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
 
         }
 

@@ -12,13 +12,15 @@ public class Posts
     public String postimage;
     public String fullname;
     public String zona;
+    public String direccion;
+    public String tipo;
 
     public Posts()
     {
 
     }
 
-    public Posts(String uid, String time, String date, String description, String postimage, String fullname,String zona) {
+    public Posts(String uid, String time, String date, String description, String postimage, String fullname,String zona,String direccion,String tipo) {
         this.uid = uid;
         this.time = time;
         this.date = date;
@@ -26,7 +28,8 @@ public class Posts
         this.postimage = postimage;
         this.fullname = fullname;
         this.zona = zona;
-
+        this.direccion = direccion;
+        this.tipo = tipo;
     }
 
     public String getUid() {
@@ -81,5 +84,12 @@ public class Posts
 
     public void setZona(String zona) { this.zona = zona; }
 
+    public String getDireccion() {return direccion;}
+
+    public void setDireccion(String direccion) { this.direccion = direccion;}
+
+    public String getTipo() { return tipo; }
+
+    public void setTipo(String tipo) { this.tipo = tipo;}
 
 }
