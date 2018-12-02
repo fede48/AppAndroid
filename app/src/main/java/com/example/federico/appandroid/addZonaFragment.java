@@ -1,7 +1,9 @@
 package com.example.federico.appandroid;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -14,10 +16,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,11 +30,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 
 public class addZonaFragment extends Fragment {
@@ -38,6 +45,7 @@ public class addZonaFragment extends Fragment {
     private int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
     private DatabaseReference mDatabase;
+    private DatabaseReference mdatabase2;
 
     private FirebaseAuth mAuth;
 
@@ -51,6 +59,8 @@ public class addZonaFragment extends Fragment {
     ArrayAdapter<String> adapter;
     List<Map<String, String>> data = new ArrayList<Map<String, String>>();
     SimpleAdapter getAdapter;
+    double lat;
+    double longi;
 
 
 
@@ -65,6 +75,8 @@ public class addZonaFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("SolicitudZonas");
+        mdatabase2=FirebaseDatabase.getInstance().getReference();
+
 
 
        // adapter=new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,lista);
@@ -93,6 +105,7 @@ public class addZonaFragment extends Fragment {
         });
 
         listarpeticiones();
+        aceptarZonas();
 
 
         // Inflate the layout for this fragment
@@ -150,6 +163,82 @@ public class addZonaFragment extends Fragment {
             }
         });
 
+    }
+
+    public void aceptarZonas(){
+        listadepeticiones.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Map<String, String> zona= (data.get(position));
+                final String nom=zona.get("datos1");
+
+                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                builder.setTitle("Informacion")
+                        .setMessage("Desea acpetar el pedido de creacion de esta zona?")
+                        .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mDatabase.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot snapshot1 : dataSnapshot.getChildren()){
+                                            if(snapshot1.child("NombreZona").getValue(String.class).equals(nom)){
+                                              lat= snapshot1.child("coordenadas").child("latitude").getValue(Double.class);
+                                              longi= snapshot1.child("coordenadas").child("longitude").getValue(Double.class);
+                                                DatabaseReference database=mdatabase2.child("Zona");
+                                                DatabaseReference currentZona=database.child(nom);
+                                                currentZona.child("Nombre").setValue(nom);
+                                                currentZona.child("latitud").setValue(lat);
+                                                currentZona.child("longitud").setValue(longi);
+                                                snapshot1.getRef().removeValue();
+
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+
+
+
+                                Toast.makeText(getContext(),"HAS AGREGADO LA ZONA",LENGTH_SHORT).show();
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .setNegativeButton("Denegar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mDatabase.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot snapshot1 : dataSnapshot.getChildren()){
+                                            if(snapshot1.child("NombreZona").getValue(String.class).equals(nom)){
+
+                                                snapshot1.getRef().removeValue();
+
+                                            }
+                                        }
+                                        Toast.makeText(getActivity(),"Penticion denegada",LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+
+                            }
+                        })
+                        .show();
+
+            }
+        });
     }
 
 

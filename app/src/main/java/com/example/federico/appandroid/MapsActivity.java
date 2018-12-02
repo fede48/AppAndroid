@@ -36,6 +36,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.Collator;
+
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -49,7 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference mDatabase;
     private ImageView info;
     private EditText input;
+    private EditText input2;
     private ImageButton back;
+
 
 
     @Override
@@ -226,24 +230,76 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 AlertDialog.Builder bil2=new AlertDialog.Builder(MapsActivity.this);
                                 bil2.setTitle("Ingrese el nombre de la Zona");
                                 input=new EditText(MapsActivity.this);
+                                input2=new EditText(MapsActivity.this);
                                 bil2.setView(input);
+                                bil2.setView(input2);
                                 bil2.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        String nombre= input.getText().toString();
+                                        final String nombre= input.getText().toString().trim().replaceAll("\\s","");
+                                        final Collator comparador = Collator.getInstance();
+                                        comparador.setStrength(Collator.PRIMARY);
+                                        final DatabaseReference databasezona=mDatabase.child("Zona");
+                                        databasezona.addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                        DatabaseReference database=mDatabase.child("SolicitudZonas");
-                                        DatabaseReference currentuser=database.child(mAuth.getCurrentUser().getUid());
-                                        currentuser.child("Solicitante").setValue(mAuth.getCurrentUser().getEmail());
-                                        currentuser.child("NombreZona").setValue(nombre);
-                                        currentuser.child("coordenadas").setValue(latLng);
+                                                boolean repetido = false;
+                                                for (DataSnapshot snapshot1: dataSnapshot.getChildren()){
+
+                                                    String zona1=snapshot1.getKey();
+                                                    if(comparador.equals(zona1,nombre)){
+
+                                                        repetido=true;
+                                                    }
+
+                                                }
+                                                if(repetido){  //dataSnapshot.hasChild(nombre
+                                                    Toast.makeText(MapsActivity.this,"Esta zona ya se encuentra registrada, intente con otro",Toast.LENGTH_LONG).show();
+
+                                                }
+                                                else{
+                                                    DatabaseReference database = mDatabase.child("SolicitudZonas");
+                                                    DatabaseReference currentuser = database.child(mAuth.getCurrentUser().getUid());
+                                                    currentuser.child("Solicitante").setValue(mAuth.getCurrentUser().getEmail());
+                                                    currentuser.child("NombreZona").setValue(nombre);
+                                                    currentuser.child("coordenadas").setValue(latLng);
+                                                    Toast.makeText(MapsActivity.this, "HAS REALIZADO TU PETICION DE CREACION DE ZONA" + nombre, LENGTH_SHORT).show();
+
+                                                }
+
+
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                        dialog.dismiss();
+
+
+
+
+
+
+
+
+
+
                                         //DatabaseReference database=mDatabase.child("Zona");
                                         //DatabaseReference currentZona=database.child(nombre);
                                         //currentZona.child("Nombre").setValue(nombre);
                                         //currentZona.child("latitud").setValue(lat);
                                         //currentZona.child("longitud").setValue(lon);
 
-                                        Toast.makeText(MapsActivity.this,"HAS AGREGADO LA ZONA"+ nombre,LENGTH_SHORT).show();
+
+                                    }
+                                });
+                                bil2.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
                                     }
                                 });
