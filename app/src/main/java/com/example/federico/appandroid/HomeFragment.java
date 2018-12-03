@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -107,6 +108,33 @@ public class HomeFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Usuarios");
         current_user_id= mAuth.getCurrentUser().getUid();
 
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        FirebaseDatabase.getInstance().getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                zonaCurrentUser = dataSnapshot.child("Usuarios").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Zona").getValue().toString();
+                if (zonaCurrentUser.isEmpty())
+                {
+                    builder.setTitle("INFORMACION");
+                    builder.setMessage("No estas subscripto a ninguna Zona, Ir a Zonas..");
+
+                    // add a button
+                    builder.setPositiveButton("OK", null);
+
+                    // create and show the alert dialog
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -154,24 +182,6 @@ public class HomeFragment extends Fragment {
         FirebaseDatabase.getInstance().getReference().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                zonaCurrentUser = dataSnapshot.child("Usuarios").child(current_user_id).child("Zona").getValue().toString();
-                /*
-                if(zonaCurrentUser.isEmpty())
-                {
-
-                    // setup the alert builder
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("INFORMACION");
-                    builder.setMessage("No estas subscripto a ninguna Zona.");
-
-                    // add a button
-                    builder.setPositiveButton("OK", null);
-
-                    // create and show the alert dialog
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }*/
 
                 Query query = PostsRef.orderByChild("zona").equalTo(zonaCurrentUser);
 
@@ -185,7 +195,8 @@ public class HomeFragment extends Fragment {
                                 ) {
 
                             @Override
-                            protected void populateViewHolder(final PostsViewHolder viewHolder, final Posts model, final int position) {
+                            protected void populateViewHolder(final PostsViewHolder viewHolder, final Posts model, final int position)
+                            {
 
                                 final String PostKey = getRef(position).getKey();
                                 viewHolder.setFullname(model.getFullname());

@@ -118,10 +118,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-
-
-
-
                 }
 
             }
@@ -138,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         {
             String u = sp.getString("pref_name","not found.");
             usuario_nombre.setText(u.toString());
-            //usuario_password.setText();
         }
         if (sp.contains("pref_pass"))
         {
@@ -181,17 +176,9 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
 
                         }
-
-                        // ...
                     }
                 });
 
-
-        //String[] user_array = {usuario_nombre.getText().toString(),usuario_password.getText().toString()};
-        //abro la otra actividad
-        //Intent intent = new Intent(this, IndexActivity.class);
-        //intent.putExtra("usuario", user_array);
-        //startActivity(intent);
     }
 
 

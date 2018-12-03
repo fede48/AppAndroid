@@ -42,6 +42,7 @@ import android.provider.*;
 import android.content.Context;
 
 import java.io.IOException;
+import android.app.AlertDialog;
 
 
 public class IndexActivity extends AppCompatActivity {
@@ -61,6 +62,7 @@ public class IndexActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private TextView usernamemenu;
+    private String zonaCurrentUser;
 
 
     @Override
@@ -75,7 +77,6 @@ public class IndexActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setTitle("Home");
         getSupportFragmentManager().beginTransaction().replace(R.id.flContent,new HomeFragment()).commit();
-
         addNewPostButton = (ImageButton)findViewById(R.id.add_new_post_button);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.index);
         mToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
