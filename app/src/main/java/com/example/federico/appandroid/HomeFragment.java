@@ -115,18 +115,25 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 zonaCurrentUser = dataSnapshot.child("Usuarios").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Zona").getValue().toString();
+                long count_post = dataSnapshot.child("Posts").getChildrenCount();
                 if (zonaCurrentUser.isEmpty())
                 {
                     builder.setTitle("INFORMACION");
                     builder.setMessage("No estas subscripto a ninguna Zona, Ir a Zonas..");
-
-                    // add a button
                     builder.setPositiveButton("OK", null);
-
-                    // create and show the alert dialog
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
+                else if (count_post == 0)
+                {
+                    builder.setTitle("INFORMACION");
+                    builder.setMessage("No existen Publicaciones en su Zona..");
+                    builder.setPositiveButton("OK", null);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
+
             }
 
             @Override
@@ -183,6 +190,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                zonaCurrentUser = dataSnapshot.child("Usuarios").child(current_user_id).child("Zona").getValue().toString();
                 Query query = PostsRef.orderByChild("zona").equalTo(zonaCurrentUser);
 
                 FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter =
