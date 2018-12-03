@@ -184,7 +184,7 @@ public class PublicacionFragment extends Fragment {
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        database.child("Usuarios").addValueEventListener(new ValueEventListener() {
+        database.child("Usuarios").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
