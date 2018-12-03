@@ -52,7 +52,7 @@ public class PublicacionFragment extends Fragment {
 
     private ImageButton selectPostImage;
     private Button UpdatePostButton;
-    private EditText PostDescription;
+    private EditText PostDescription, PostAddress;
     private int PICK_IMAGE_REQUEST = 1;
     private Uri ImageUri;
     private String Descripcion;
@@ -61,6 +61,8 @@ public class PublicacionFragment extends Fragment {
     private DatabaseReference UsersRef, PostsRef;
     private ProgressDialog loadingBar;
     private FirebaseAuth mAuth;
+    private Spinner PostType;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,7 +81,13 @@ public class PublicacionFragment extends Fragment {
         loadingBar = new ProgressDialog(getActivity());
         UpdatePostButton = (Button) v.findViewById(R.id.update_post_button);
         PostDescription = (EditText) v.findViewById(R.id.post_description);
+        PostAddress = (EditText) v.findViewById(R.id.post_address);
         selectPostImage =(ImageButton)v.findViewById(R.id.select_post_image);
+        PostType = (Spinner) v.findViewById(R.id.post_type);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),R.array.opciones,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+        PostType.setAdapter(adapter);
+
         PostsImageReference = FirebaseStorage.getInstance().getReference();
 
         selectPostImage.setOnClickListener(new View.OnClickListener() {
@@ -164,6 +172,13 @@ public class PublicacionFragment extends Fragment {
 
     }
 
+    private void SendUserToIndexActivity()
+    {
+        Intent indexIntent = new Intent(getActivity(), IndexActivity.class);
+        indexIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(indexIntent);
+    }
+
     private void SavingPostInformationToDatabase()
     {
 
@@ -186,6 +201,8 @@ public class PublicacionFragment extends Fragment {
                     postsMap.put("time",saveCurrentTime);
                     postsMap.put("description",Descripcion);
                     postsMap.put("postimage",downloadUrl);
+                    postsMap.put("direccion",PostAddress.getText().toString());
+                    postsMap.put("tipo",PostType.getSelectedItem().toString());
                     postsMap.put("fullname", fullname);
                     postsMap.put("zona", zona);
 
@@ -198,6 +215,7 @@ public class PublicacionFragment extends Fragment {
                                     {
                                         Toast.makeText(getActivity(),"Post is updated successfully ", Toast.LENGTH_SHORT).show();
                                         loadingBar.dismiss();
+                                        SendUserToIndexActivity();
                                     }
                                     else
                                     {

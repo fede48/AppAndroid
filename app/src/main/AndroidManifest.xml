@@ -57,9 +57,7 @@
             android:label="@string/title_activity_indexadm"
             android:theme="@style/AppTheme" />
         <activity android:name=".ClickPostActivity" />
-        <activity
-            android:name=".MapsSolicitudes"
-            android:label="@string/title_activity_maps_solicitudes"></activity>
+        <activity android:name=".CommentsActivity"></activity>
     </application>
 
 </manifest>

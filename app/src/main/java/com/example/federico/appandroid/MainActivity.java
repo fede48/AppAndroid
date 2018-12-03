@@ -1,6 +1,7 @@
 package com.example.federico.appandroid;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,8 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
-
-
+    private CheckBox mCheckBoxRemerber;
+    private SharedPreferences mPrefs;
+    private static final String PREFS_NAME = "PrefsFile";
 
 
     // Ejecuta al iniciar si estas logueado
@@ -53,15 +55,19 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         btn_login=(Button)findViewById(R.id.btn_login);
         btn_aceptar = findViewById(R.id.btn_aceptar);
         usuario_nombre = (EditText) findViewById(R.id.usuario_txt);
         usuario_password = (EditText) findViewById(R.id.password_txt);
+        mCheckBoxRemerber = (CheckBox) findViewById(R.id.checkboxRememberMe);
 
         mProgress=new ProgressDialog(this);
 
+        getPreferencesData();
         // Metodo para registrarte
         btn_aceptar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -112,10 +118,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-
-
-
-
                 }
 
             }
@@ -125,8 +127,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getPreferencesData()
+    {
+        SharedPreferences sp = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+        if (sp.contains("pref_name"))
+        {
+            String u = sp.getString("pref_name","not found.");
+            usuario_nombre.setText(u.toString());
+        }
+        if (sp.contains("pref_pass"))
+        {
+            String p = sp.getString("pref_pass","not found.");
+            usuario_password.setText(p.toString());
+        }
+        if (sp.contains("pref_check"))
+        {
+            Boolean b = sp.getBoolean("pref_check",false);
+            mCheckBoxRemerber.setChecked(b);
+        }
+    }
 
-// TRASLADE EL METODO REGISTRAR A OTRA ACTIVIDAD(ACTIVITY_REGISTRO) , PARA COMPLETAR MAS DATOS al momentode resgistrarse
+
+    // TRASLADE EL METODO REGISTRAR A OTRA ACTIVIDAD(ACTIVITY_REGISTRO) , PARA COMPLETAR MAS DATOS al momentode resgistrarse
     public void openActivity()
     {
 
@@ -154,24 +176,16 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
 
                         }
-
-                        // ...
                     }
                 });
 
-
-        //String[] user_array = {usuario_nombre.getText().toString(),usuario_password.getText().toString()};
-        //abro la otra actividad
-        //Intent intent = new Intent(this, IndexActivity.class);
-        //intent.putExtra("usuario", user_array);
-        //startActivity(intent);
     }
 
 
 
     public void loguearse(){
         final String usuario=usuario_nombre.getText().toString().trim();
-        String pass=usuario_password.getText().toString().trim();
+        final String pass=usuario_password.getText().toString().trim();
 
 
         if (!TextUtils.isEmpty(usuario) && !TextUtils.isEmpty(pass)) {
@@ -185,6 +199,21 @@ public class MainActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             mProgress.dismiss();
                             if (task.isSuccessful()) {
+
+                                if (mCheckBoxRemerber.isChecked())
+                                {
+                                    Boolean boolIsChecked =  mCheckBoxRemerber.isChecked();
+                                    SharedPreferences.Editor editor = mPrefs.edit();
+                                    editor.putString("pref_name",usuario);
+                                    editor.putString("pref_pass",pass);
+                                    editor.putBoolean("pref_check", boolIsChecked);
+                                    editor.apply();
+                                }
+                                else
+                                {
+                                    mPrefs.edit().clear().apply();
+                                }
+
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
 
@@ -194,6 +223,11 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intent = new Intent(MainActivity.this, IndexActivity.class);
                                 //intent.putExtra("email",usuario_nombre.getText().toString());
                                 startActivity(intent);
+
+                                usuario_nombre.getText().clear();
+                                usuario_password.getText().clear();
+
+
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Toast.makeText(MainActivity.this, task.getException().getMessage(),
