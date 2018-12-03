@@ -7,6 +7,10 @@ public class MapaFirebase {
 
 
 
+    private double radio;
+
+
+
 
 
 
@@ -33,6 +37,14 @@ public class MapaFirebase {
     }
     public String getNombre() {
         return Nombre;
+    }
+
+    public double getRadio() {
+        return radio;
+    }
+
+    public void setRadio(double radio) {
+        this.radio = radio;
     }
 
 

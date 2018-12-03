@@ -71,6 +71,7 @@ public class addZonaFragment extends Fragment {
         View v=inflater.inflate(R.layout.fragment_add_zona, container, false);
 
         listadepeticiones=(ListView)v.findViewById(R.id.zonalistass);
+        darpermisosdeLOCATION();
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -97,15 +98,17 @@ public class addZonaFragment extends Fragment {
         irmapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                darpermisosdeLOCATION();
 
-                Intent intent=new Intent(getActivity().getApplicationContext(),MapsActivity.class);
+
+                Intent intent=new Intent(getActivity().getApplicationContext(),MapsSolicitudes.class);
                 startActivity(intent);
             }
         });
 
         listarpeticiones();
+
         aceptarZonas();
+
 
 
         // Inflate the layout for this fragment
@@ -145,15 +148,32 @@ public class addZonaFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
+
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
 
+                String zona=dataSnapshot.child("NombreZona").getValue(String.class);
+                String user=dataSnapshot.child("Solicitante").getValue(String.class);
+
+
+                Map<String, String> datum = new HashMap<String, String>(2);
+                datum.put("datos1", zona);
+                datum.put("datos2", user);
+
+                data.remove(datum);
+
+
+                // lista.add(valor);
+
+                getAdapter.notifyDataSetChanged();
+
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
 
             }
 
@@ -177,7 +197,8 @@ public class addZonaFragment extends Fragment {
                         .setMessage("Desea acpetar el pedido de creacion de esta zona?")
                         .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(final DialogInterface dialog, int which) {
+                                final FirebaseUser user = mAuth.getCurrentUser();
                                 mDatabase.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -185,15 +206,25 @@ public class addZonaFragment extends Fragment {
                                             if(snapshot1.child("NombreZona").getValue(String.class).equals(nom)){
                                               lat= snapshot1.child("coordenadas").child("latitude").getValue(Double.class);
                                               longi= snapshot1.child("coordenadas").child("longitude").getValue(Double.class);
-                                                DatabaseReference database=mdatabase2.child("Zona");
-                                                DatabaseReference currentZona=database.child(nom);
-                                                currentZona.child("Nombre").setValue(nom);
-                                                currentZona.child("latitud").setValue(lat);
-                                                currentZona.child("longitud").setValue(longi);
-                                                snapshot1.getRef().removeValue();
+                                              Double radio=snapshot1.child("radio").getValue(Double.class);
+                                              DatabaseReference database=mdatabase2.child("Zona");
+                                              DatabaseReference currentZona=database.child(nom);
+                                              currentZona.child("Nombre").setValue(nom);
+                                              currentZona.child("latitud").setValue(lat);
+                                              currentZona.child("longitud").setValue(longi);
+                                              currentZona.child("radio").setValue(radio);
+
+
+
+
+                                              Toast.makeText(getContext(),"HAS AGREGADO LA ZONA",LENGTH_SHORT).show();
+                                              dialog.dismiss();
+
 
                                             }
                                         }
+
+
                                     }
 
                                     @Override
@@ -205,25 +236,28 @@ public class addZonaFragment extends Fragment {
 
 
 
-                                Toast.makeText(getContext(),"HAS AGREGADO LA ZONA",LENGTH_SHORT).show();
-                                dialog.dismiss();
 
                             }
                         })
                         .setNegativeButton("Denegar", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(final DialogInterface dialog, int which) {
+                                final FirebaseUser user = mAuth.getCurrentUser();
+
                                 mDatabase.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         for (DataSnapshot snapshot1 : dataSnapshot.getChildren()){
                                             if(snapshot1.child("NombreZona").getValue(String.class).equals(nom)){
 
-                                                snapshot1.getRef().removeValue();
 
+                                                snapshot1.getRef().removeValue();
                                             }
                                         }
                                         Toast.makeText(getActivity(),"Penticion denegada",LENGTH_SHORT).show();
+
+                                        dialog.dismiss();
+
                                     }
 
                                     @Override

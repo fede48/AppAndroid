@@ -5,22 +5,25 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.BoringLayout;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.method.NumberKeyListener;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -30,6 +33,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +41,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.Collator;
+import java.text.DecimalFormat;
+import java.util.Map;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -159,7 +165,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     long cant=snapshot1.child("Suscriptores").getChildrenCount();
                     Double latitud = mp.getLatitud();
                     Double longitud = mp.getLongitud();
+                    Double radio=mp.getRadio();
                     LatLng city= new LatLng(latitud,longitud);
+
 
                     MarkerOptions markerOptions = new MarkerOptions()
                             .title(mp.getNombre()).snippet("cantidad de suscriptores: "+cant);
@@ -186,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(city,13),5000,null);
                     mMap.addCircle(new CircleOptions()
                     .center(city)
-                    .radius(1000)
+                    .radius(radio)
                     .strokeWidth(2f)
                     .strokeColor(Color.GRAY)
                     .fillColor(0x550000FF));
@@ -225,70 +233,108 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                final double lat=latLng.latitude;
-                                final double lon=latLng.longitude;
+
                                 AlertDialog.Builder bil2=new AlertDialog.Builder(MapsActivity.this);
                                 bil2.setTitle("Ingrese el nombre de la Zona");
                                 input=new EditText(MapsActivity.this);
+                                input.setInputType(InputType.TYPE_CLASS_TEXT);
                                 input2=new EditText(MapsActivity.this);
                                 bil2.setView(input);
-                                bil2.setView(input2);
+
                                 bil2.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                                     @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        final String nombre= input.getText().toString().trim().replaceAll("\\s","");
-                                        final Collator comparador = Collator.getInstance();
-                                        comparador.setStrength(Collator.PRIMARY);
-                                        final DatabaseReference databasezona=mDatabase.child("Zona");
-                                        databasezona.addValueEventListener(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    public void onClick(final DialogInterface dialog, int which) {
 
-                                                boolean repetido = false;
-                                                for (DataSnapshot snapshot1: dataSnapshot.getChildren()){
 
-                                                    String zona1=snapshot1.getKey();
-                                                    if(comparador.equals(zona1,nombre)){
 
-                                                        repetido=true;
+                                        if(input.getText().toString().trim().isEmpty()){
+                                            Toast.makeText(MapsActivity.this,"Eror, zona vacia",LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        }
+                                        else {
+
+
+                                            AlertDialog.Builder bil3 = new AlertDialog.Builder(MapsActivity.this);
+
+
+                                            bil3.setTitle("Ingrese radio de la zona");
+                                            input2.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                            bil3.setView(input2);
+                                            bil3.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(final DialogInterface dialog, int which) {
+
+
+                                                    final String radio = input2.getText().toString();
+                                                    if (radio.isEmpty()) {
+
+                                                        Toast.makeText(MapsActivity.this, "El radio no puede ir  vacio", LENGTH_SHORT).show();
+                                                        dialog.dismiss();
+
+                                                    } else {
+                                                        final String nombre = input.getText().toString().trim().replaceAll("\\s", "");
+                                                        final DatabaseReference databasezona = mDatabase.child("Zona");
+                                                        databasezona.addValueEventListener(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                final Collator comparador = Collator.getInstance();
+                                                                comparador.setStrength(Collator.PRIMARY);
+                                                                Double radioconvert = Double.parseDouble(radio);
+                                                                boolean repe = false;
+                                                                for (DataSnapshot snapshot1 : dataSnapshot.getChildren()) {
+
+
+                                                                    String zona1 = snapshot1.getKey();
+                                                                    if (comparador.equals(zona1, nombre)) {
+                                                                        Toast.makeText(MapsActivity.this, "Esta zona ya se encuentra registrada, intente con otro", Toast.LENGTH_LONG).show();
+                                                                        repe=true;
+                                                                        dialog.dismiss();
+
+                                                                    }
+
+
+                                                                }
+                                                                if (radioconvert >= 200 && radioconvert <= 1000 && !repe) {
+                                                                    DatabaseReference database = mDatabase.child("SolicitudZonas");
+                                                                    DatabaseReference currentuser = database.child(mAuth.getCurrentUser().getUid());
+                                                                    currentuser.child("Solicitante").setValue(mAuth.getCurrentUser().getEmail());
+                                                                    currentuser.child("NombreZona").setValue(nombre);
+                                                                    currentuser.child("coordenadas").setValue(latLng);
+                                                                    currentuser.child("radio").setValue(radioconvert);
+                                                                    Toast.makeText(MapsActivity.this, "HAS REALIZADO TU PETICION DE CREACION DE ZONA" + nombre, LENGTH_SHORT).show();
+
+                                                                    mMap.addMarker(new MarkerOptions().position(latLng));
+
+                                                                    mMap.addCircle(new CircleOptions()
+                                                                            .center(latLng).radius(radioconvert).strokeWidth(2f).strokeColor(Color.GRAY).fillColor(0x550000FF));
+                                                                } else {
+                                                                    Toast.makeText(MapsActivity.this, "El radio no debe ser menor a 200mts", LENGTH_SHORT).show();
+                                                                }
+
+
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                            }
+                                                        });
                                                     }
-
+                                                    dialog.dismiss();
                                                 }
-                                                if(repetido){  //dataSnapshot.hasChild(nombre
-                                                    Toast.makeText(MapsActivity.this,"Esta zona ya se encuentra registrada, intente con otro",Toast.LENGTH_LONG).show();
-
+                                            });
+                                            bil3.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    Toast.makeText(MapsActivity.this,"Cancelado",LENGTH_SHORT).show();
+                                                    dialog.dismiss();
                                                 }
-                                                else{
-                                                    DatabaseReference database = mDatabase.child("SolicitudZonas");
-                                                    DatabaseReference currentuser = database.child(mAuth.getCurrentUser().getUid());
-                                                    currentuser.child("Solicitante").setValue(mAuth.getCurrentUser().getEmail());
-                                                    currentuser.child("NombreZona").setValue(nombre);
-                                                    currentuser.child("coordenadas").setValue(latLng);
-                                                    Toast.makeText(MapsActivity.this, "HAS REALIZADO TU PETICION DE CREACION DE ZONA" + nombre, LENGTH_SHORT).show();
+                                            }).show();
 
-                                                }
+                                            dialog.dismiss();
 
 
-
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                        dialog.dismiss();
-
-
-
-
-
-
-
-
-
-
-                                        //DatabaseReference database=mDatabase.child("Zona");
+                                        }//DatabaseReference database=mDatabase.child("Zona");
                                         //DatabaseReference currentZona=database.child(nombre);
                                         //currentZona.child("Nombre").setValue(nombre);
                                         //currentZona.child("latitud").setValue(lat);
@@ -306,9 +352,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 bil2.show();
 
 
-                                mMap.addMarker(new MarkerOptions().position(latLng));
-                                mMap.addCircle(new CircleOptions()
-                                .center(latLng).radius(1000).strokeWidth(2f).strokeColor(Color.GRAY).fillColor(0x550000FF));
+
 
                             }
                         })

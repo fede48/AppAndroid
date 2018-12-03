@@ -190,6 +190,9 @@ public class ZonaFragment extends Fragment {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                String valor=dataSnapshot.getKey();
+                lista.remove(valor);
+                adapter.notifyDataSetChanged();
 
             }
 
@@ -200,6 +203,8 @@ public class ZonaFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity(),"error"+databaseError.toString(),LENGTH_SHORT).show();
+
 
             }
         });
