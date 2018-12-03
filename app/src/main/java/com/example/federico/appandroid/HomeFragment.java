@@ -40,6 +40,8 @@ import android.Manifest;
 import android.content.*;
 import android.support.v4.app.*;
 import android.content.pm.*;
+import android.widget.Toast;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -143,8 +145,6 @@ public class HomeFragment extends Fragment {
 
         DisplayAllUsersPosts();
 
-
-
         return v;
     }
 
@@ -155,103 +155,102 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 zonaCurrentUser = dataSnapshot.child("Usuarios").child(current_user_id).child("Zona").getValue().toString();
-
-                if (zonaCurrentUser.isEmpty())
+                /*
+                if(zonaCurrentUser.isEmpty())
                 {
-                    AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
-                    builder.setIcon(R.mipmap.ic_launcher)
-                            .setTitle("INFORMACION")
-                            .setMessage("No estas subscripto a ninguna Zona.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
 
-                    builder.create().show();
-                }
-                else
-                    {
-                    Query query = PostsRef.orderByChild("zona").equalTo(zonaCurrentUser);
+                    // setup the alert builder
 
-                    FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter =
-                            new FirebaseRecyclerAdapter<Posts, PostsViewHolder>
-                                    (
-                                            Posts.class,
-                                            R.layout.all_posts_layout,
-                                            PostsViewHolder.class,
-                                            query
-                                    ) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("INFORMACION");
+                    builder.setMessage("No estas subscripto a ninguna Zona.");
 
-                                @Override
-                                protected void populateViewHolder(final PostsViewHolder viewHolder, final Posts model, final int position) {
+                    // add a button
+                    builder.setPositiveButton("OK", null);
 
-                                    final String PostKey = getRef(position).getKey();
-                                    viewHolder.setFullname(model.getFullname());
-                                    viewHolder.setTime(model.getTime());
-                                    viewHolder.setDate(model.getDate());
-                                    viewHolder.setDescription(model.getDescription());
-                                    viewHolder.setPostimage(getActivity().getApplicationContext(), model.getPostimage());
+                    // create and show the alert dialog
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }*/
 
-                                    viewHolder.setLikeButtonStatus(PostKey);
+                Query query = PostsRef.orderByChild("zona").equalTo(zonaCurrentUser);
+
+                FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter =
+                        new FirebaseRecyclerAdapter<Posts, PostsViewHolder>
+                                (
+                                        Posts.class,
+                                        R.layout.all_posts_layout,
+                                        PostsViewHolder.class,
+                                        query
+                                ) {
+
+                            @Override
+                            protected void populateViewHolder(final PostsViewHolder viewHolder, final Posts model, final int position) {
+
+                                final String PostKey = getRef(position).getKey();
+                                viewHolder.setFullname(model.getFullname());
+                                viewHolder.setTime(model.getTime());
+                                viewHolder.setDate(model.getDate());
+                                viewHolder.setDescription(model.getDescription());
+                                viewHolder.setPostimage(getActivity().getApplicationContext(), model.getPostimage());
+
+                                viewHolder.setLikeButtonStatus(PostKey);
 
 
-                                    viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent clickPostIntent = new Intent(getActivity(), ClickPostActivity.class);
-                                            clickPostIntent.putExtra("PostKey", PostKey);
-                                            startActivity(clickPostIntent);
-                                        }
-                                    });
+                                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent clickPostIntent = new Intent(getActivity(), ClickPostActivity.class);
+                                        clickPostIntent.putExtra("PostKey", PostKey);
+                                        startActivity(clickPostIntent);
+                                    }
+                                });
 
-                                    viewHolder.CommentPostButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent commentsPostIntent = new Intent(getActivity(), CommentsActivity.class);
-                                            commentsPostIntent.putExtra("PostKey", PostKey);
-                                            startActivity(commentsPostIntent);
-                                        }
-                                    });
+                                viewHolder.CommentPostButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent commentsPostIntent = new Intent(getActivity(), CommentsActivity.class);
+                                        commentsPostIntent.putExtra("PostKey", PostKey);
+                                        startActivity(commentsPostIntent);
+                                    }
+                                });
 
-                                    viewHolder.LikePostButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            LikeChecker = true;
+                                viewHolder.LikePostButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        LikeChecker = true;
 
-                                            LikesRef.addValueEventListener(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        LikesRef.addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                                    if (LikeChecker.equals(true)) {
-                                                        if (dataSnapshot.child(PostKey).hasChild(current_user_id)) {
-                                                            LikesRef.child(PostKey).child(current_user_id).removeValue();
-                                                            LikeChecker = false;
-                                                        } else {
-                                                            LikesRef.child(PostKey).child(current_user_id).setValue(true);
-                                                            LikeChecker = false;
-                                                        }
-
+                                                if (LikeChecker.equals(true)) {
+                                                    if (dataSnapshot.child(PostKey).hasChild(current_user_id)) {
+                                                        LikesRef.child(PostKey).child(current_user_id).removeValue();
+                                                        LikeChecker = false;
+                                                    } else {
+                                                        LikesRef.child(PostKey).child(current_user_id).setValue(true);
+                                                        LikeChecker = false;
                                                     }
 
                                                 }
 
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            }
 
-                                                }
-                                            });
-                                        }
-                                    });
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                }
-                            };
+                                            }
+                                        });
+                                    }
+                                });
+
+                            }
+                        };
 
 
                     postList.setAdapter(firebaseRecyclerAdapter);
 
-                }
             }
 
             @Override
@@ -259,6 +258,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
+
 
     }
 
