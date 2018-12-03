@@ -125,7 +125,7 @@ public class ZonaFragment extends Fragment {
         zonas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final String zona= lista.get(position);
+                final String zona= adapter.getItem(position);
                 AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
                 builder.setIcon(R.mipmap.ic_launcher);
                 builder.setTitle("SUBSCRIPCION").setMessage("¿Desea susscribirse?")
@@ -341,6 +341,8 @@ public class ZonaFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.getFilter().filter(s);
+                lista.get(start);
+
 
             }
 

@@ -25,6 +25,7 @@ public class Activity_Registro extends AppCompatActivity {
     private EditText dni;
     private EditText email;
     private EditText pw;
+    private EditText pw2;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgress;
     private Button enviarregistro;
@@ -37,6 +38,9 @@ public class Activity_Registro extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity__registro);
         mAuth = FirebaseAuth.getInstance();
+        email=(EditText)findViewById(R.id.usuario_txt);
+        pw=(EditText)findViewById(R.id.password_txt);
+        pw2=(EditText)findViewById(R.id.password2_txt);
         nombre=(EditText)findViewById(R.id.name);
         apellido=(EditText)findViewById(R.id.surname);
         dni=(EditText)findViewById(R.id.documento);
@@ -50,7 +54,17 @@ public class Activity_Registro extends AppCompatActivity {
         enviarregistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registrar();
+                if(email.getText().toString().trim().isEmpty() || pw.getText().toString().trim().isEmpty() || pw2.getText().toString().trim().isEmpty() || nombre.getText().toString().trim().isEmpty() || apellido.getText().toString().trim().isEmpty() || dni.getText().toString().trim().isEmpty()){
+                    Toast.makeText(Activity_Registro.this,"Eror, no pueden ir campos vacios",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!pw.getText().toString().trim().equals(pw2.getText().toString().trim())){
+                    Toast.makeText(Activity_Registro.this,"No coinciden las contraseñas!",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else {
+                    registrar();
+                }
             }
         });
 

@@ -218,6 +218,7 @@ public class addZonaFragment extends Fragment {
 
 
                                               Toast.makeText(getContext(),"HAS AGREGADO LA ZONA",LENGTH_SHORT).show();
+                                              snapshot1.getRef().removeValue();
                                               dialog.dismiss();
 
 

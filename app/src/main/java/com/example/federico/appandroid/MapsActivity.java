@@ -142,7 +142,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         getZonas(googleMap);
-        agregarZonas(googleMap);
+        //agregarZonas(googleMap);
 
 
 
@@ -150,12 +150,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void getZonas(GoogleMap googleMap){
+    public void getZonas(final GoogleMap googleMap){
         final FirebaseUser user = mAuth.getCurrentUser();
+
         mMap=googleMap;
         mDatabase.child("Zona").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                agregarZonas(googleMap);
 
 
 
@@ -301,7 +303,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                                     currentuser.child("NombreZona").setValue(nombre);
                                                                     currentuser.child("coordenadas").setValue(latLng);
                                                                     currentuser.child("radio").setValue(radioconvert);
-                                                                    Toast.makeText(MapsActivity.this, "HAS REALIZADO TU PETICION DE CREACION DE ZONA" + nombre, LENGTH_SHORT).show();
+                                                                    Toast.makeText(MapsActivity.this, "Has realizado tu peticion de la zona " + nombre + "con exito", LENGTH_SHORT).show();
 
                                                                     mMap.addMarker(new MarkerOptions().position(latLng));
 

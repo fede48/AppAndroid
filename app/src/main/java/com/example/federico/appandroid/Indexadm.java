@@ -82,16 +82,17 @@ public class Indexadm extends AppCompatActivity
         int id = item.getItemId();
         Fragment selectedFragment = null;
 
-        if (id == R.id.alertas) {
-            // Handle the camera action
-        } else if (id == R.id.zonasolici) {
+        if (id == R.id.zonasolici) {
             selectedFragment = new addZonaFragment();
 
         } else if (id == R.id.homeadm) {
             selectedFragment = new HomeFragment();
 
 
-        } else if (id == R.id.nav_share) {
+        }
+        else if (id == R.id.alertas) {
+            selectedFragment = new AlertFragment();
+
 
         } else if (id == R.id.cerrarsesion) {
             selectedFragment=new SingOut();
