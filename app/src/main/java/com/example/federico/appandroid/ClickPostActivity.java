@@ -85,7 +85,7 @@ public class ClickPostActivity extends AppCompatActivity {
 
                     if (currentUserID.equals(databaseUserID)) {
                         DeletePostButton.setVisibility(View.VISIBLE);
-                        EditPostButtom.setVisibility(View.VISIBLE);
+                        //EditPostButtom.setVisibility(View.VISIBLE);
                     }
                 }
             }

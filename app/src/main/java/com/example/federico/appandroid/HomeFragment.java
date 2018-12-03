@@ -115,7 +115,7 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 zonaCurrentUser = dataSnapshot.child("Usuarios").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Zona").getValue().toString();
-                long count_post = dataSnapshot.child("Posts").getChildrenCount();
+
                 if (zonaCurrentUser.isEmpty())
                 {
                     builder.setTitle("INFORMACION");
@@ -124,13 +124,42 @@ public class HomeFragment extends Fragment {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-                else if (count_post == 0)
+                else
                 {
-                    builder.setTitle("INFORMACION");
-                    builder.setMessage("No existen Publicaciones en su Zona..");
-                    builder.setPositiveButton("OK", null);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+
+                    Query query2 = PostsRef.orderByChild("zona").equalTo(zonaCurrentUser);
+                    query2.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists())
+                            {
+                                long count_post  = dataSnapshot.getChildrenCount();
+                                //long count_post = dataSnapshot.child("Posts").getChildrenCount();
+                                if (count_post == 0)
+                                {
+                                    builder.setTitle("INFORMACION");
+                                    builder.setMessage("No existen Publicaciones en su Zona..");
+                                    builder.setPositiveButton("OK", null);
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
+                                }
+                            }
+                            else
+                            {
+                                builder.setTitle("INFORMACION");
+                                builder.setMessage("No existen Publicaciones en su Zona..");
+                                builder.setPositiveButton("OK", null);
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }
 
 
