@@ -276,7 +276,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                     } else {
                                                         final String nombre = input.getText().toString().trim().replaceAll("\\s", "");
                                                         final DatabaseReference databasezona = mDatabase.child("Zona");
-                                                        databasezona.addValueEventListener(new ValueEventListener() {
+                                                        databasezona.addListenerForSingleValueEvent(new ValueEventListener() {
                                                             @Override
                                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                                 final Collator comparador = Collator.getInstance();
